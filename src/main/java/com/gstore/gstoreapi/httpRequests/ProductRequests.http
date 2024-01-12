@@ -1,0 +1,38 @@
+### CREATE
+POST http://localhost:8080/api/v1/products
+Content-Type: application/json
+
+{
+  "name": "Syrah",
+  "manufacturer": "Vinadeis",
+  "country": "France",
+  "price": 79,
+  "rating": null,
+  "sellerId": 3
+}
+
+
+### READ ALL
+GET http://localhost:8080/api/v1/products
+
+
+### READ SPECIFIC
+GET http://localhost:8080/api/v1/products/12
+
+
+### UPDATE SPECIFIC
+PATCH http://localhost:8080/api/v1/products/19
+Content-Type: application/json
+
+{
+    "name": null,
+    "manufacturer": null,
+    "country": null,
+    "price": null,
+    "rating": null,
+    "sellerId": null
+}
+
+
+### DELETE SPECIFIC
+DELETE http://localhost:8080/api/v1/products/19

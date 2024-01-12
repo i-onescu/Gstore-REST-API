@@ -1,0 +1,34 @@
+### CREATE
+POST http://localhost:8080/api/v1/sellers
+Content-Type: application/json
+
+{
+  "name": "BEER BOYS",
+  "country": "Romania",
+  "email": "seller4@fakemail.com",
+  "international": true
+}
+
+
+### READ ALL
+GET http://localhost:8080/api/v1/sellers
+
+
+### READ SPECIFIC
+GET http://localhost:8080/api/v1/sellers/5
+
+
+### UPDATE SPECIFIC
+PUT http://localhost:8080/api/v1/sellers/5
+Content-Type: application/json
+
+{
+    "name": null,
+    "country": null,
+    "email": null,
+    "international": true
+}
+
+
+### DELETE SPECIFIC
+DELETE http://localhost:8080/api/v1/sellers/7
