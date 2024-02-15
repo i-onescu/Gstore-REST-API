@@ -1,40 +1,30 @@
 package com.gstore.gstoreapi.services;
 
 import com.gstore.gstoreapi.converters.ObjectConverter;
-import com.gstore.gstoreapi.exceptions.BuyerNotFoundException;
 import com.gstore.gstoreapi.exceptions.OrderNotFoundException;
-import com.gstore.gstoreapi.exceptions.ProductNotFoundException;
+import com.gstore.gstoreapi.models.constants.OrderStatus;
 import com.gstore.gstoreapi.models.dtos.OrderDTO;
-import com.gstore.gstoreapi.models.dtos.ProductDTO;
-import com.gstore.gstoreapi.models.entities.Buyer;
+import com.gstore.gstoreapi.models.dtos.QuantityDto;
 import com.gstore.gstoreapi.models.entities.Order;
-import com.gstore.gstoreapi.models.entities.Product;
-import com.gstore.gstoreapi.repositories.BuyerRepository;
+import com.gstore.gstoreapi.models.entities.Quantity;
 import com.gstore.gstoreapi.repositories.OrderRepository;
-import com.gstore.gstoreapi.repositories.ProductRepository;
+import com.gstore.gstoreapi.repositories.QuantityRepository;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-public class OrderService{
+@RequiredArgsConstructor
+public class OrderService {
 
+    private final QuantityService quantityService;
     private final OrderRepository orderRepository;
     private final ObjectConverter<Order, OrderDTO> orderConverter;
-
-    public OrderService(OrderRepository orderRepository,
-                        BuyerRepository buyerRepository,
-                        ProductRepository productRepository,
-                        ObjectConverter<Order, OrderDTO> orderConverter) {
-        this.orderRepository = orderRepository;
-        this.orderConverter = orderConverter;
-    }
-
+    private static  String orderNum = "ABC123";
 
     //returns all orders
     public List<OrderDTO> getAllOrders() {
@@ -44,7 +34,7 @@ public class OrderService{
         //stream converts entities into DTOs and maps into a list
         return orders.stream()
                 .map(orderConverter::convertFirstToSecond)
-                .collect(Collectors.toList());
+                .toList();
     }
 
 
@@ -68,46 +58,54 @@ public class OrderService{
 
 
     //saves a new order based on a DTO
-    public void saveOrder(@Valid OrderDTO orderDTO) {
+    public void placeOrder(@Valid OrderDTO orderDTO) {
         Order order = orderConverter.convertSecondToFirst(orderDTO);
 
-        orderRepository.save(order);
-    }
+        order.setPlacedDateTime(LocalDateTime.now());
+        order.setOrderNumber(orderNum);
+        order.setStatus(OrderStatus.PLACED);
+        order.setPrice(order.getOrderQuantities().stream()
+                .mapToDouble(quantity -> quantity.getQuantity() * quantity.getProduct().getPrice())
+                .sum());
 
-//
-//    //updates a specific orders details based on an id and DTO containing new details
-//    public void updateOrderDetails(Long id, OrderDTO orderDTO) {
-//        if (orderRepository.existsById(id)) {
-//            Order order = orderConverter.convertSecondToFirst(orderDTO);
-//            orderRepository.save(order);
-//        } else throw (new OrderNotFoundException());
-//    }
+        orderRepository.save(order);
+        order = orderRepository.findOrderByBuyerAndPlacedDateTime(order.getBuyer(), order.getPlacedDateTime())
+                .orElseThrow(OrderNotFoundException::new);
+
+        saveQuantityForOrder(order, orderDTO);
+    }
 
 
     public void updateOrderDetails(Long id, OrderDTO orderDTO) {
-        if (orderRepository.findOrderById(id).isPresent()) {
-            Order order = orderRepository.findOrderById(id).get();
-            Order patchOrder = orderConverter.convertSecondToFirst(orderDTO);
+        if (orderRepository.findOrderById(id).isEmpty()) {
+            throw new OrderNotFoundException();
+        }
+        Order order = orderRepository.findOrderById(id).get();
+        Order patchOrder = orderConverter.convertSecondToFirst(orderDTO);
 
-            updateOrder(order, patchOrder);
-            orderRepository.save(order);
-        } else throw (new OrderNotFoundException());
+        updateOrder(order, patchOrder);
+        orderRepository.save(order);
     }
 
 
-    public void updateOrder(Order order,  Order patchOrder) {
-
-        if (patchOrder.getOrderNumber() != null) {
-            order.setOrderNumber(patchOrder.getOrderNumber());
+    public void updateOrder(Order order, Order patchOrder) {
+        if (patchOrder.getPrice() != null) {
+            order.setPrice(patchOrder.getPrice());
         }
 
-        if (patchOrder.getBuyer() != null) {
-            order.setBuyer(patchOrder.getBuyer());
+        if (patchOrder.getStatus() != null) {
+            order.setStatus(patchOrder.getStatus());
         }
 
-        if (patchOrder.getProducts() != null) {
-            order.setProducts(patchOrder.getProducts());
+        if (patchOrder.getOrderQuantities() != null) {
+            order.setOrderQuantities(patchOrder.getOrderQuantities());
         }
     }
+
+    private void saveQuantityForOrder(Order order, OrderDTO orderDTO) {
+        orderDTO.orderQuantities()
+                .forEach(quantityDto -> quantityService.saveQuantity(quantityDto, order));
+    }
+
 
 }

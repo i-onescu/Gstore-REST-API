@@ -1,15 +1,17 @@
 package com.gstore.gstoreapi.models.entities;
 
-import com.gstore.gstoreapi.models.entityParents.User;
+import com.gstore.gstoreapi.models.constants.AccountStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.validator.constraints.Range;
 
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "buyers")
 public class Buyer {
@@ -41,10 +43,16 @@ public class Buyer {
     @Column(name = "age")
     private Integer age;
 
+    //status of buyer account
+    @NotNull
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private AccountStatus status;
+
     //list of orders customer has made, a history
     @OneToMany(mappedBy = "buyer", fetch = FetchType.LAZY)
     private List<Order> orders;
 
-    //will add address, status of acc etc.
+    //will add address
 
 }

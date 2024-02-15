@@ -3,10 +3,10 @@ POST http://localhost:8080/api/v1/orders
 Content-Type: application/json
 
 {
-  "orderNumber": "4568",
-  "buyerId": 4,
+  "orderNumber": "12385",
+  "buyerId": 5,
   "status": 1,
-  "productIds": [7, 5, 1, 3]
+  "productIds": [7 ,7]
 }
 
 

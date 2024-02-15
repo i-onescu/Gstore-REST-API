@@ -75,7 +75,7 @@ public class ProductController {
             return ResponseBuilder.buildResponsePayload("Updated product!",
                     HttpStatus.OK);
         }  catch (SellerNotFoundException e) {
-            return ResponseBuilder.buildResponsePayload(String.format("Seller with id %d does not exist", id),
+            return ResponseBuilder.buildResponsePayload(String.format("Product with id %d does not exist", id),
                     HttpStatus.BAD_REQUEST);
         } catch (ValidationException e) {
             return ResponseBuilder.buildResponsePayload("Something else wrong!",

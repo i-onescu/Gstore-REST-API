@@ -2,28 +2,23 @@ package com.gstore.gstoreapi.services;
 
 import com.gstore.gstoreapi.converters.ObjectConverter;
 import com.gstore.gstoreapi.exceptions.BuyerNotFoundException;
+import com.gstore.gstoreapi.models.constants.AccountStatus;
 import com.gstore.gstoreapi.models.dtos.BuyerDTO;
 import com.gstore.gstoreapi.models.entities.Buyer;
 import com.gstore.gstoreapi.repositories.BuyerRepository;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class BuyerService {
 
     private final BuyerRepository buyerRepository;
-
     private final ObjectConverter<Buyer, BuyerDTO> buyerConverter;
 
-    public BuyerService(BuyerRepository buyerRepository,
-                        ObjectConverter<Buyer, BuyerDTO> buyerConverter) {
-        this.buyerRepository = buyerRepository;
-        this.buyerConverter = buyerConverter;
-    }
 
     //returns list of all buyers in repository
     public List<BuyerDTO> getAllBuyers() {
@@ -33,8 +28,9 @@ public class BuyerService {
         //stream converts entities into DTOs and maps into a list
         return buyers.stream()
                 .map(buyerConverter::convertFirstToSecond)
-                .collect(Collectors.toList());
+                .toList();
     }
+
     //returns specific buyer based on an id
     public BuyerDTO getBuyerById(Long id) {
         Buyer buyer = buyerRepository.findBuyerById(id)
@@ -54,49 +50,41 @@ public class BuyerService {
     //saves new buyer through passed DTO
     public void saveBuyer(@Valid BuyerDTO buyerDTO) {
         Buyer buyer = buyerConverter.convertSecondToFirst(buyerDTO);
-
+        buyer.setStatus(AccountStatus.ACTIVE);
         buyerRepository.save(buyer);
     }
 
     //updates buyer details based on an id and DTO containing new details
     //returns true if the seller existed previously, if not returns false
-    public boolean updateBuyerDetails(Long id, BuyerDTO buyerDTO) {
-        boolean buyerExisting = false;
-        Optional<Buyer> buyerById = buyerRepository.findBuyerById(id);
-        Buyer buyer;
-
-        if (buyerById.isPresent()) {
-            buyerExisting = true;
-            buyer = buyerById.get();
-        } else {
-            buyer = new Buyer();
+    public void updateBuyerDetails(Long id, BuyerDTO buyerDTO) {
+        if (buyerRepository.findBuyerById(id).isEmpty()) {
+            throw new BuyerNotFoundException();
         }
 
-        updateBuyer(buyerDTO, buyer);
-        buyerRepository.save(buyer);
+        Buyer buyer = buyerRepository.findBuyerById(id).get();
+        Buyer patchBuyer = buyerConverter.convertSecondToFirst(buyerDTO);
 
-        return buyerExisting;
+        updateBuyer(buyer, patchBuyer);
+        buyerRepository.save(buyer);
     }
 
     //updates passed buyer details based on DTO passed
-    private void updateBuyer(BuyerDTO buyerDTO, Buyer buyer) {
-        if (buyerDTO.name() != null){
-            buyer.setName(buyerDTO.name());
+    private void updateBuyer(Buyer buyer, Buyer patchBuyer) {
+        if (patchBuyer.getName() != null) {
+            buyer.setName(patchBuyer.getName());
         }
 
-        if (buyerDTO.country() != null){
-            buyer.setCountry(buyerDTO.country());
+        if (patchBuyer.getCountry() != null) {
+            buyer.setCountry(patchBuyer.getCountry());
         }
 
-        if (buyerDTO.email() != null){
-            buyer.setEmail(buyerDTO.email());
+        if (patchBuyer.getEmail() != null) {
+            buyer.setEmail(patchBuyer.getEmail());
         }
 
-        if (buyerDTO.age() != null){
-            buyer.setAge(buyerDTO.age());
+        if (patchBuyer.getAge() != null) {
+            buyer.setAge(patchBuyer.getAge());
         }
     }
-
-
 }
 

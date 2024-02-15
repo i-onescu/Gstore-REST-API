@@ -67,11 +67,9 @@ public class SellerController {
     public ResponseEntity<ResponsePayload> updateSellerDetails(@PathVariable("id") Long id,
                                                                @RequestBody SellerDTO sellerDTO) {
         try {
-            return sellerService.updateSellerDetails(id, sellerDTO)
-                    ? ResponseBuilder.buildResponsePayload("Seller Updated!",
-                    HttpStatus.OK)
-                    : ResponseBuilder.buildResponsePayload("Seller Created!",
-                    HttpStatus.CREATED);
+            sellerService.updateSellerDetails(id, sellerDTO);
+            return ResponseBuilder.buildResponsePayload("Seller Updated!",
+                    HttpStatus.OK);
         } catch (ValidationException e){
             return ResponseBuilder.buildResponsePayload(String.format("Cannot update seller with id %d!", id),
                     HttpStatus.BAD_REQUEST);

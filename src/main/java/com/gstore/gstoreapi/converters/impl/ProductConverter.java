@@ -6,7 +6,6 @@ import com.gstore.gstoreapi.models.dtos.ProductDTO;
 import com.gstore.gstoreapi.models.entities.Product;
 import com.gstore.gstoreapi.models.entities.Seller;
 import com.gstore.gstoreapi.repositories.SellerRepository;
-import com.gstore.gstoreapi.services.SellerService;
 import org.springframework.stereotype.Component;
 
 @Component

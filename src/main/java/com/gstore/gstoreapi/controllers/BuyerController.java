@@ -21,7 +21,6 @@ public class BuyerController {
     }
 
 
-
     @GetMapping
     public ResponseEntity<ResponsePayload> getAllBuyers() {
         return ResponseBuilder.buildResponsePayload(buyerService.getAllBuyers(),
@@ -67,11 +66,9 @@ public class BuyerController {
     public ResponseEntity<ResponsePayload> updateBuyerDetails(@PathVariable("id") Long id,
                                                               @RequestBody BuyerDTO buyerDTO) {
         try {
-            return buyerService.updateBuyerDetails(id, buyerDTO)
-                    ? ResponseBuilder.buildResponsePayload("Buyer Updated!",
-                    HttpStatus.OK)
-                    : ResponseBuilder.buildResponsePayload("Buyer Updated!",
-                    HttpStatus.CREATED);
+            buyerService.updateBuyerDetails(id, buyerDTO);
+            return ResponseBuilder.buildResponsePayload("Buyer Updated!",
+                    HttpStatus.OK);
         } catch (ValidationException e){
             return ResponseBuilder.buildResponsePayload(String.format("Cannot update buyer with id %d!", id),
                     HttpStatus.BAD_REQUEST);

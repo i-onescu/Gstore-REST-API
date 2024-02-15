@@ -4,7 +4,6 @@ import com.gstore.gstoreapi.controllers.util.ResponseBuilder;
 import com.gstore.gstoreapi.exceptions.BuyerNotFoundException;
 import com.gstore.gstoreapi.exceptions.OrderNotFoundException;
 import com.gstore.gstoreapi.exceptions.ProductNotFoundException;
-import com.gstore.gstoreapi.exceptions.SellerNotFoundException;
 import com.gstore.gstoreapi.models.dtos.OrderDTO;
 import com.gstore.gstoreapi.models.dtos.ResponsePayload;
 import com.gstore.gstoreapi.services.OrderService;
@@ -32,7 +31,7 @@ public class OderController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponsePayload> getOrderById(@PathVariable("id") Long id) {
+    public ResponseEntity<ResponsePayload> getOrderById(@PathVariable Long id) {
         try {
             return ResponseBuilder.buildResponsePayload(orderService.getOrderById(id),
                     HttpStatus.FOUND);
@@ -43,7 +42,7 @@ public class OderController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ResponsePayload> deleteOrderById(@PathVariable("id") Long id) {
+    public ResponseEntity<ResponsePayload> deleteOrderById(@PathVariable Long id) {
         try {
             orderService.deleteOrderById(id);
 
@@ -55,14 +54,14 @@ public class OderController {
         }
     }
 
-    @PostMapping
-    public ResponseEntity<ResponsePayload> saveOrder(@RequestBody OrderDTO orderDTO) {
+    @PostMapping("/place")
+    public ResponseEntity<ResponsePayload> placeOrder(@RequestBody OrderDTO orderDTO) {
         try {
-            orderService.saveOrder(orderDTO);
-            return ResponseBuilder.buildResponsePayload("Order saved!",
+            orderService.placeOrder(orderDTO);
+            return ResponseBuilder.buildResponsePayload("Order placed!",
                     HttpStatus.CREATED);
         } catch (ProductNotFoundException e) {
-            return ResponseBuilder.buildResponsePayload("One of the products ids listed was incorrect!",
+            return ResponseBuilder.buildResponsePayload("One of the products listed was incorrect!",
                     HttpStatus.BAD_REQUEST);
         } catch (BuyerNotFoundException e) {
             return ResponseBuilder.buildResponsePayload("Buyer ID invalid!",
@@ -91,4 +90,5 @@ public class OderController {
                     HttpStatus.BAD_REQUEST);
         }
     }
+
 }

@@ -2,7 +2,6 @@ package com.gstore.gstoreapi.models.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Range;
@@ -15,14 +14,14 @@ import org.hibernate.validator.constraints.Range;
 @Setter
 @Entity
 @Table(name = "order_quantities")
-public class OrderQuantity {
+public class Quantity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", referencedColumnName = "id")
+    @ManyToOne()
+    @JoinColumn(name = "order_id")
     private Order order;
 
     @ManyToOne(fetch = FetchType.LAZY)

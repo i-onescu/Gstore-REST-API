@@ -15,7 +15,7 @@ GET http://localhost:8080/api/v1/buyers
 
 
 ### READ SPECIFIC
-GET http://localhost:8080/api/v1/buyers/7
+GET http://localhost:8080/api/v1/buyers/1
 
 
 ### UPDATE SPECIFIC/CREATE
