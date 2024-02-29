@@ -10,14 +10,15 @@ public class SellerConverter implements ObjectConverter<Seller, SellerDTO> {
 
     @Override
     public Seller convertSecondToFirst(SellerDTO sellerDTO) {
-        Seller s = new Seller();
+        Seller seller = new Seller();
 
-        s.setName(sellerDTO.name());
-        s.setEmail(sellerDTO.email());
-        s.setCountry(sellerDTO.country());
-        s.setInternational(sellerDTO.international());
+        seller.setName(sellerDTO.name());
+        seller.setEmail(sellerDTO.email());
+        seller.setCountry(sellerDTO.country());
+        seller.setInternational(sellerDTO.international());
+        seller.setStatus(sellerDTO.status());
 
-        return s;
+        return seller;
     }
 
     @Override
@@ -26,7 +27,8 @@ public class SellerConverter implements ObjectConverter<Seller, SellerDTO> {
                 .name(seller.getName())
                 .email(seller.getEmail())
                 .country(seller.getCountry())
-                .international(seller.isInternational())
+                .international(seller.getInternational())
+                .status(seller.getStatus())
                 .build();
     }
 }

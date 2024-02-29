@@ -1,14 +1,16 @@
 package com.gstore.gstoreapi.models.entities;
 
+import com.gstore.gstoreapi.enums.ProductCategory;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.validator.constraints.Range;
 
-import java.util.Set;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "products")
 public class Product {
@@ -43,7 +45,7 @@ public class Product {
     //availability (true = in stock , false = not in stock )
     @NotNull
     @Column(name = "availability")
-    private boolean available;
+    private Boolean available;
 
     //product rating by customers who purchased said product
     @Range(min = 1, max = 10)
@@ -51,11 +53,14 @@ public class Product {
     private Integer rating;
 
     //seller of the product
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "seller_id", referencedColumnName = "id")
     private Seller seller;
 
-    //list of orders associated (!will probably change to sales!) ¯\_(ツ)_/¯
-    @ManyToMany(mappedBy = "products")
-    private Set<Order> orders;
+    //search category for product
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private ProductCategory category;
+
+
 }

@@ -17,6 +17,8 @@ public class BuyerConverter implements ObjectConverter<Buyer, BuyerDTO> {
         buyer.setCountry(buyerDTO.country());
         buyer.setEmail(buyerDTO.email());
         buyer.setAge(buyerDTO.age());
+        buyer.setStatus(buyerDTO.status());
+        buyer.setPassword(buyerDTO.password());
 
         return buyer;
     }
@@ -28,6 +30,7 @@ public class BuyerConverter implements ObjectConverter<Buyer, BuyerDTO> {
                 .country(buyer.getCountry())
                 .email(buyer.getEmail())
                 .age(buyer.getAge())
+                .status(buyer.getStatus())
                 .build();
     }
 }

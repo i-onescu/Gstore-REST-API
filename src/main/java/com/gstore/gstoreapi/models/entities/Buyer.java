@@ -1,18 +1,24 @@
 package com.gstore.gstoreapi.models.entities;
 
-import com.gstore.gstoreapi.models.entityParents.User;
+import com.gstore.gstoreapi.enums.AccountStatus;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.validator.constraints.Range;
 
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "buyers")
 public class Buyer {
+
+    @Transient
+    private final long secretKey = 6413806169116570852l;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,7 +38,7 @@ public class Buyer {
     //contact email and where buyer receives order info
     @NotNull
     @Pattern(regexp = ".+@.+\\..+")
-    @Column(name = "email")
+    @Column(name = "email", unique = true)
     private String email;
 
     //age of buyer
@@ -41,10 +47,32 @@ public class Buyer {
     @Column(name = "age")
     private Integer age;
 
+    //status of buyer account
+    @NotNull
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private AccountStatus status;
+
     //list of orders customer has made, a history
-    @OneToMany(mappedBy = "buyer", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "buyer", fetch = FetchType.EAGER)
     private List<Order> orders;
 
-    //will add address, status of acc etc.
+    //cart contains items the buyer would like to purchase in an order
+    //containing pseudo-quantities with a pattern of
+    // item1Id:item1Quantity,item2Id:item2Quantity,item3Id:item3Quantity
+    @Nullable
+//    @Pattern(regexp = "[0-9:,]+")
+    @Column(name = "cart")
+    private String cart;
+
+    @NotNull
+    @Column(name = "password")
+    private String password;
+
+//    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    @JoinColumn(name = "session_id", referencedColumnName = "id")
+//    private CustomSession session;
+
+    //ADD ADDRESS
 
 }

@@ -1,18 +1,20 @@
 package com.gstore.gstoreapi.repositories;
 
-
 import com.gstore.gstoreapi.models.entities.Buyer;
-import com.gstore.gstoreapi.models.entities.Order;
+import com.gstore.gstoreapi.models.entities.CustomSession;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Repository
-public interface OrderRepository extends JpaRepository<Order,Long> {
+public interface CustomSessionRepository extends JpaRepository<CustomSession, Long> {
 
-    Optional<Order> findOrderById(Long id);
+    boolean existsByBuyer(Buyer buyer);
+
+    Optional<CustomSession> findById(Long id);
+
+    Optional<CustomSession> findByBuyer(Buyer buyer);
 
 }

@@ -1,12 +1,16 @@
 package com.gstore.gstoreapi.models.entities;
 
-import com.gstore.gstoreapi.models.entityParents.User;
+import com.gstore.gstoreapi.enums.AccountStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+import java.util.Set;
+
+@Getter
+@Setter
 @Entity
 @Table(name = "sellers")
 public class  Seller {
@@ -34,13 +38,19 @@ public class  Seller {
 
     //regarding if seller ships internationally
     //may change to a list of countries seller ships to
+    @NotNull
     @Column(name = "international")
-    private boolean international;
+    private Boolean international;
 
-    //will probably change with sales or ditch all together
-    //because sales/orders will be listed in product entity
-    //and i can get list of orders through a QUERY (i think)
-//    @OneToMany(mappedBy = "seller", fetch = FetchType.LAZY)
-//    private List<Order> orders;
+    //status of seller account
+    @NotNull
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private AccountStatus status;
+
+    //set of products sold by seller
+    //relationship mapped on product side
+    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Product> products;
 
 }

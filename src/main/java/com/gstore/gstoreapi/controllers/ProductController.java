@@ -1,85 +1,117 @@
 package com.gstore.gstoreapi.controllers;
 
-import com.gstore.gstoreapi.controllers.util.ResponseBuilder;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.gstore.gstoreapi.controllers.util.ResponseBuilderHelper;
+import com.gstore.gstoreapi.enums.ProductCategory;
+import com.gstore.gstoreapi.exceptions.InvalidPayloadException;
 import com.gstore.gstoreapi.exceptions.ProductNotFoundException;
-import com.gstore.gstoreapi.exceptions.SellerNotFoundException;
 import com.gstore.gstoreapi.models.dtos.ProductDTO;
 import com.gstore.gstoreapi.models.dtos.ResponsePayload;
 import com.gstore.gstoreapi.services.ProductService;
-import jakarta.validation.ValidationException;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/products")
+@RequiredArgsConstructor
 public class ProductController {
 
     private final ProductService productService;
 
-    public ProductController(ProductService productService) {
-        this.productService = productService;
-    }
 
+    @PostMapping
+    public ResponseEntity<ResponsePayload> saveProduct(@RequestBody ProductDTO productDTO) {
+        productService.saveProduct(productDTO);
+        return ResponseBuilderHelper.buildResponsePayload("Product posted!",
+                HttpStatus.CREATED);
+    }
 
 
     @GetMapping
     public ResponseEntity<ResponsePayload> getAllProducts() {
-        return ResponseBuilder.buildResponsePayload(productService.getAllProducts(),
-                HttpStatus.FOUND);
+        return ResponseBuilderHelper.buildResponsePayload(productService.getAllProducts(),
+                HttpStatus.OK);
     }
+
+
+    @GetMapping("/category")
+    public ResponseEntity<ResponsePayload> getAllProductsByCategory(@RequestParam String name) {
+        try {
+            return ResponseBuilderHelper.buildResponsePayload(productService.getAllProductsByCategory(name),
+                    HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return ResponseBuilderHelper.buildResponsePayload("No such category exists!",
+                    HttpStatus.BAD_REQUEST);
+        }
+    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<ResponsePayload> getProductById(@PathVariable("id") Long id) {
-        try {
-            return ResponseBuilder.buildResponsePayload(productService.getProductById(id),
-                    HttpStatus.FOUND);
-        } catch (ProductNotFoundException e) {
-            return ResponseBuilder.buildResponsePayload(String.format("Product with id %d not found!", id),
-                    HttpStatus.NOT_FOUND);
-        }
+        return ResponseBuilderHelper.buildResponsePayload(productService.getProductById(id),
+                HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ResponsePayload> deleteProductById(@PathVariable("id") Long id) {
-        try {
-            productService.deleteProductById(id);
-            return ResponseBuilder.buildResponsePayload(String.format("Deleted product with id %d!", id),
-                    HttpStatus.NO_CONTENT);
-        } catch (ProductNotFoundException e) {
-            return ResponseBuilder.buildResponsePayload(String.format("Product with id %d not found!", id),
-                    HttpStatus.NOT_FOUND);
-        }
+
+    @GetMapping("/salesFor")
+    public ResponseEntity<ResponsePayload> getProductSales(@RequestParam Long id) {
+        return ResponseBuilderHelper.buildResponsePayload(productService.getProductSales(id),
+                HttpStatus.OK);
     }
 
-    @PostMapping
-    public ResponseEntity<ResponsePayload> saveProduct(@RequestBody ProductDTO productDTO) {
-        try {
-            productService.saveProduct(productDTO);
-            return ResponseBuilder.buildResponsePayload("Product posted!",
-                    HttpStatus.CREATED);
-        } catch (SellerNotFoundException e) {
-            return ResponseBuilder.buildResponsePayload("Seller ID invalid!",
-                    HttpStatus.BAD_REQUEST);
-        } catch (ValidationException e) {
-            return ResponseBuilder.buildResponsePayload("Wrong request!",
-                    HttpStatus.BAD_REQUEST);
-        }
-    }
 
     @PatchMapping("/{id}")
     public ResponseEntity<ResponsePayload> updateProductDetails(@PathVariable("id") Long id,
                                                                 @RequestBody ProductDTO productDTO) {
+        productService.updateProductDetails(id, productDTO);
+        return ResponseBuilderHelper.buildResponsePayload("Updated product!",
+                HttpStatus.OK);
+    }
+
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ResponsePayload> deleteProduct(@PathVariable("id") Long id) {
+        productService.deleteProductById(id);
+        return ResponseBuilderHelper.buildResponsePayload(String.format("Deleted product with id %d!", id),
+                HttpStatus.NO_CONTENT);
+    }
+
+
+    @PutMapping("/rate")
+    public ResponseEntity<ResponsePayload> rateProduct(@RequestBody ProductDTO productDTO,
+                                                       HttpServletRequest request) {
         try {
-            productService.updateProductDetails(id ,productDTO);
-            return ResponseBuilder.buildResponsePayload("Updated product!",
-                    HttpStatus.OK);
-        }  catch (SellerNotFoundException e) {
-            return ResponseBuilder.buildResponsePayload(String.format("Seller with id %d does not exist", id),
-                    HttpStatus.BAD_REQUEST);
-        } catch (ValidationException e) {
-            return ResponseBuilder.buildResponsePayload("Something else wrong!",
+            Long sessionId = Long.valueOf(request.getHeader("Session-Id"));
+            productService.rate(sessionId, productDTO);
+            return getProductById(productDTO.Id());
+        } catch (InvalidPayloadException e) {
+            return ResponseBuilderHelper.buildResponsePayload("Bad request!",
                     HttpStatus.BAD_REQUEST);
         }
     }
+
+
+
+
+    @GetMapping("/categories")
+    public ResponseEntity<ResponsePayload> getProductCategories() {
+        return ResponseBuilderHelper.buildResponsePayload(
+                String.format("GAMING " +
+                        "    TECH " +
+                        "    SOFTWARE " +
+                        "    HOUSEHOLD " +
+                        "    FOODSTUFFS " +
+                        "    SPORTS"),
+                HttpStatus.OK);
+    }
+
+
+
+
+
 }

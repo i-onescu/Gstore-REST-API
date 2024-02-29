@@ -1,4 +1,4 @@
-package com.gstore.gstoreapi.models.constants;
+package com.gstore.gstoreapi.enums;
 
 public enum OrderStatus {
 
@@ -6,5 +6,4 @@ public enum OrderStatus {
     IN_PROGRESS,
     DELIVERED,
     CANCELED;
-
 }

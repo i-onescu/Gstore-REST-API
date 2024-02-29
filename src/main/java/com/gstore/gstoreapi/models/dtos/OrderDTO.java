@@ -1,18 +1,16 @@
 package com.gstore.gstoreapi.models.dtos;
 
-import com.gstore.gstoreapi.models.constants.OrderStatus;
+import com.gstore.gstoreapi.enums.OrderStatus;
 import jakarta.annotation.Nullable;
 import lombok.Builder;
 
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Builder
 public record OrderDTO(@Nullable String orderNumber,
-                       @Nullable Long buyerId,
+                       @Nullable Double price,
                        @Nullable OrderStatus status,
-
-                       //Because an order may have more products listed i created a list of product ids
-                       //meant to represent a list of products that may be on a particular order
-                       @Nullable List<Long> productIds) { }
-
+                       @Nullable Long buyerId,
+                       @Nullable Set<QuantityDTO> orderQuantities,
+                       @Nullable LocalDateTime placedDateTime) { }

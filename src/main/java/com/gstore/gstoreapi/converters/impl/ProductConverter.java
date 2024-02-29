@@ -1,12 +1,10 @@
 package com.gstore.gstoreapi.converters.impl;
 
 import com.gstore.gstoreapi.converters.ObjectConverter;
-import com.gstore.gstoreapi.exceptions.SellerNotFoundException;
+import com.gstore.gstoreapi.enums.ProductCategory;
 import com.gstore.gstoreapi.models.dtos.ProductDTO;
 import com.gstore.gstoreapi.models.entities.Product;
-import com.gstore.gstoreapi.models.entities.Seller;
 import com.gstore.gstoreapi.repositories.SellerRepository;
-import com.gstore.gstoreapi.services.SellerService;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -18,51 +16,43 @@ public class ProductConverter implements ObjectConverter<Product, ProductDTO> {
         this.sellerRepository = sellerService;
     }
 
-    //included validation just to do 2 in one
+
     @Override
     public Product convertSecondToFirst(ProductDTO dto) {
         Product p = new Product();
 
-        if (dto.name() != null){
-            p.setName(dto.name());
+        p.setName(dto.name());
+        p.setManufacturer(dto.manufacturer());
+        p.setCountry(dto.country());
+        p.setPrice(dto.price());
+        p.setRating(dto.rating());
+        p.setAvailable(dto.available());
+
+        if (dto.category() != null) {
+            p.setCategory(ProductCategory.valueOf(dto.category().toUpperCase()));
         }
 
-        if (dto.manufacturer() != null){
-            p.setManufacturer(dto.manufacturer());
-        }
-
-        if (dto.country() != null){
-            p.setCountry(dto.country());
-        }
-
-        if (dto.price() != null){
-            p.setPrice(dto.price());
-        }
-
-        if (dto.rating() != null){
-            p.setRating(dto.rating());
-        }
-
-        //method throws SellerNotFoundException if seller id is not found
-        if (dto.sellerId() != null){
-            Seller seller = sellerRepository.findSellerById(dto.sellerId())
-                    .orElseThrow(SellerNotFoundException::new);
-
-            p.setSeller(seller);
-        }
+        //returning null because in case the client sends payload with a null seller
+        //say in case of an update request, we can handle this case
+        //and throw an exception only when we need a valid seller (ex: when saving a new product)
+        p.setSeller(sellerRepository.findSellerById(dto.sellerId()).orElse(null));
 
         return p;
     }
 
+
     @Override
     public ProductDTO convertFirstToSecond(Product p) {
         return ProductDTO.builder()
+                .Id(p.getId())
                 .name(p.getName())
                 .manufacturer(p.getManufacturer())
                 .country(p.getCountry())
                 .price(p.getPrice())
                 .rating(p.getRating())
                 .sellerId(p.getSeller().getId())
+                .category(p.getCategory().name())
+                .available(p.getAvailable())
                 .build();
     }
 
