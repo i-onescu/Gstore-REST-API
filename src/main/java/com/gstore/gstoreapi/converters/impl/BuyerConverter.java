@@ -1,7 +1,6 @@
 package com.gstore.gstoreapi.converters.impl;
 
 import com.gstore.gstoreapi.converters.ObjectConverter;
-import com.gstore.gstoreapi.models.constants.AccountStatus;
 import com.gstore.gstoreapi.models.dtos.BuyerDTO;
 import com.gstore.gstoreapi.models.entities.Buyer;
 import org.springframework.stereotype.Component;
@@ -19,6 +18,7 @@ public class BuyerConverter implements ObjectConverter<Buyer, BuyerDTO> {
         buyer.setEmail(buyerDTO.email());
         buyer.setAge(buyerDTO.age());
         buyer.setStatus(buyerDTO.status());
+        buyer.setPassword(buyerDTO.password());
 
         return buyer;
     }
@@ -30,6 +30,7 @@ public class BuyerConverter implements ObjectConverter<Buyer, BuyerDTO> {
                 .country(buyer.getCountry())
                 .email(buyer.getEmail())
                 .age(buyer.getAge())
+                .status(buyer.getStatus())
                 .build();
     }
 }

@@ -1,6 +1,6 @@
 package com.gstore.gstoreapi.models.dtos;
 
-import com.gstore.gstoreapi.models.constants.AccountStatus;
+import com.gstore.gstoreapi.enums.AccountStatus;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Pattern;
 import lombok.Builder;

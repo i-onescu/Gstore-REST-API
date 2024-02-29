@@ -3,12 +3,11 @@ package com.gstore.gstoreapi.converters.impl;
 import com.gstore.gstoreapi.converters.ObjectConverter;
 import com.gstore.gstoreapi.exceptions.BuyerNotFoundException;
 import com.gstore.gstoreapi.models.dtos.OrderDTO;
-import com.gstore.gstoreapi.models.dtos.QuantityDto;
+import com.gstore.gstoreapi.models.dtos.QuantityDTO;
 import com.gstore.gstoreapi.models.entities.Order;
 import com.gstore.gstoreapi.models.entities.Quantity;
 import com.gstore.gstoreapi.repositories.BuyerRepository;
 
-import com.gstore.gstoreapi.repositories.QuantityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -20,8 +19,7 @@ import java.util.stream.Collectors;
 public class OrderConverter implements ObjectConverter<Order, OrderDTO> {
 
     private final BuyerRepository buyerRepository;
-    private final QuantityRepository quantityRepository;
-    private final ObjectConverter<Quantity, QuantityDto> quantityConverter;
+    private final ObjectConverter<Quantity, QuantityDTO> quantityConverter;
 
     @Override
     public Order convertSecondToFirst(OrderDTO orderDTO) {
@@ -30,17 +28,17 @@ public class OrderConverter implements ObjectConverter<Order, OrderDTO> {
         order.setOrderNumber(orderDTO.orderNumber());
         order.setPrice(orderDTO.price());
         order.setStatus(orderDTO.status());
-
-        order.setBuyer(buyerRepository.findBuyerById(orderDTO.buyerId())
-                .orElseThrow(BuyerNotFoundException::new));
-
-        order.setOrderQuantities(
-                orderDTO.orderQuantities().stream()
-                        .map(quantityConverter::convertSecondToFirst)
-                        .collect(Collectors.toSet())
-        );
-
         order.setPlacedDateTime(orderDTO.placedDateTime());
+        order.setBuyer(buyerRepository.findBuyerById(orderDTO.buyerId()).orElse(null));
+
+
+        if (orderDTO.orderQuantities() != null && !orderDTO.orderQuantities().isEmpty()) {
+            order.setOrderQuantities(
+                    orderDTO.orderQuantities().stream()
+                            .map(quantityConverter::convertSecondToFirst)
+                            .collect(Collectors.toSet())
+            );
+        }
 
         return order;
     }
@@ -52,7 +50,6 @@ public class OrderConverter implements ObjectConverter<Order, OrderDTO> {
                 .price(order.getPrice())
                 .buyerId(order.getBuyer().getId())
                 .status(order.getStatus())
-                .buyerId(order.getBuyer().getId())
                 .orderQuantities(order.getOrderQuantities().stream()
                         .map(quantityConverter::convertFirstToSecond)
                         .collect(Collectors.toSet()))

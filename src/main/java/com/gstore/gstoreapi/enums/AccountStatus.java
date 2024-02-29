@@ -1,8 +1,8 @@
-package com.gstore.gstoreapi.models.constants;
+package com.gstore.gstoreapi.enums;
 
 public enum AccountStatus {
 
-    CREATED("CREATED"),
+    REGISTERED("REGISTERED"),
     ACTIVE("ACTIVE"),
     SUSPENDED("SUSPENDED"),
     DEACTIVATED("DEACTIVATED");

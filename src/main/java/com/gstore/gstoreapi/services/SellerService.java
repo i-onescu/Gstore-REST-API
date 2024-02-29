@@ -2,28 +2,38 @@ package com.gstore.gstoreapi.services;
 
 import com.gstore.gstoreapi.converters.ObjectConverter;
 import com.gstore.gstoreapi.exceptions.SellerNotFoundException;
-import com.gstore.gstoreapi.models.constants.AccountStatus;
+import com.gstore.gstoreapi.enums.AccountStatus;
 import com.gstore.gstoreapi.models.dtos.SellerDTO;
 import com.gstore.gstoreapi.models.entities.Seller;
 import com.gstore.gstoreapi.repositories.SellerRepository;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class SellerService {
 
     private final SellerRepository sellerRepository;
-
     private final ObjectConverter<Seller, SellerDTO> sellerConverter;
 
-    public SellerService (SellerRepository sellerRepository, ObjectConverter<Seller, SellerDTO> sellerConverter) {
-        this.sellerRepository = sellerRepository;
-        this.sellerConverter = sellerConverter;
+
+    //saves a new seller based on a provided DTO
+    public void saveSeller(@Valid SellerDTO sellerDTO) {
+        //converts DTO to an instance of Seller
+        Seller seller = sellerConverter.convertSecondToFirst(sellerDTO);
+
+        //status is set to AccountStatus.REGISTERED, activation to be determined
+        seller.setStatus(AccountStatus.REGISTERED);
+
+        //new seller is saved
+        sellerRepository.save(seller);
     }
 
-    //returns list of all sellers in repository
+
+    //returns list of all sellers in database
     public List<SellerDTO> getAllSellers() {
         //list of all entities found in repository
         List<Seller> sellers = sellerRepository.findAll();
@@ -34,46 +44,43 @@ public class SellerService {
                 .toList();
     }
 
-    //returns specific seller based on an id
+
+    //retrieves a seller from repository based on provided id
     public SellerDTO getSellerById(Long id) {
+        //throws exception if a seller with the provided id is not found
         Seller seller = sellerRepository.findSellerById(id)
                 .orElseThrow(SellerNotFoundException::new);
 
+        //returns a converted DTO
         return sellerConverter.convertFirstToSecond(seller);
     }
 
-    //deletes specific seller based on an id
-    public void deleteSellerById(Long id) {
-        Seller seller = sellerRepository.findSellerById(id)
-                .orElseThrow(SellerNotFoundException::new);
 
-        sellerRepository.delete(seller);
-    }
-
-    //saves new seller passed through DTO
-    public void saveSeller(@Valid SellerDTO sellerDTO) {
-        Seller seller = sellerConverter.convertSecondToFirst(sellerDTO);
-        seller.setStatus(AccountStatus.CREATED);
-
-        sellerRepository.save(seller);
-    }
-
-    //updates seller details based on an id and DTO containing new details
-    //returns true if the seller existed previously, if not returns false
+    //updates seller from repository based on an id and DTO containing new details (both provided by client)
     public void updateSellerDetails(Long id, SellerDTO sellerDTO) {
+        //firstly, does a quick verification to see if a seller with the provided id is found
+        //if not, throws exception thus saving time
         if (sellerRepository.findSellerById(id).isEmpty()) {
             throw new SellerNotFoundException();
         }
 
+        //retrieves the seller to be updated and instantiates a new seller with details from the provided DTO
         Seller seller = sellerRepository.findSellerById(id).get();
         Seller patchSeller = sellerConverter.convertSecondToFirst(sellerDTO);
 
+        //updates seller with new details and saves changes in persistence layer
         updateSeller(seller, patchSeller);
         sellerRepository.save(seller);
     }
 
-    //updates passed seller details based on DTO passed
+
+    //updates seller details
+    //only updates what is allowed, does not change id
     private void updateSeller(Seller seller, Seller patchSeller) {
+
+        //not null validation was put in place because null/missing fields are allowed in payload,
+        //as the client must provide only the fields and values that they wish to update for the chosen seller
+
         if (patchSeller.getName() != null) {
             seller.setName(patchSeller.getName());
         }
@@ -89,6 +96,17 @@ public class SellerService {
         if (patchSeller.getInternational() != null) {
             seller.setInternational(patchSeller.getInternational());
         }
+    }
+
+
+    //deletes specific seller based on an id
+    public void deleteSellerById(Long id) {
+        //throws exception if a seller with the provided id is not found
+        Seller seller = sellerRepository.findSellerById(id)
+                .orElseThrow(SellerNotFoundException::new);
+
+        //deletes seller
+        sellerRepository.delete(seller);
     }
 
 }

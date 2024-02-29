@@ -1,11 +1,13 @@
 package com.gstore.gstoreapi.models.entities;
 
-import com.gstore.gstoreapi.models.constants.AccountStatus;
+import com.gstore.gstoreapi.enums.AccountStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.Set;
 
 @Getter
 @Setter
@@ -36,6 +38,7 @@ public class  Seller {
 
     //regarding if seller ships internationally
     //may change to a list of countries seller ships to
+    @NotNull
     @Column(name = "international")
     private Boolean international;
 
@@ -45,6 +48,9 @@ public class  Seller {
     @Enumerated(EnumType.STRING)
     private AccountStatus status;
 
-
+    //set of products sold by seller
+    //relationship mapped on product side
+    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Product> products;
 
 }

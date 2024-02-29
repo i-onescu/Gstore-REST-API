@@ -1,6 +1,6 @@
 package com.gstore.gstoreapi.models.entities;
 
-import com.gstore.gstoreapi.models.constants.OrderStatus;
+import com.gstore.gstoreapi.enums.OrderStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -35,19 +35,21 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
+    //date and time date was placed
+    @NotNull
+    @Column(name = "placed_date_time")
+    private LocalDateTime placedDateTime;
+
     //id of the buyer which placed the order
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "buyer_id", referencedColumnName = "id")
     private Buyer buyer;
 
     //quantities of products in order
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Quantity> orderQuantities;
 
-    //date and time date was placed
-    @NotNull
-    @Column(name = "placed_date_time", columnDefinition = "DATE")
-    private LocalDateTime placedDateTime;
+
 
     //and order completed date, ETA, etc.
 

@@ -12,9 +12,10 @@ import java.util.Set;
 @Repository
 public interface QuantityRepository extends JpaRepository<Quantity, Long> {
 
-    Optional<Quantity> findSaleById(Long id);
+    Optional<Quantity> findQuantityById(Long id);
 
-    @Query("select s from Quantity s where s.product= :p")
-    Set<Quantity> findSalesByProduct(Product p);
+    //finds all quantities of a certain product only if the order containing said quantity is not cancelled
+    @Query("select q from Quantity q where q.product= :p and not q.order.status = 'CANCELED'")
+    Set<Quantity> findQuantitiesByProduct(Product p);
 
 }

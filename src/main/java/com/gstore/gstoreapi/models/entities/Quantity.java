@@ -20,7 +20,7 @@ public class Quantity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne()
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     private Order order;
 
@@ -32,5 +32,7 @@ public class Quantity {
     @Range(min = 1, max = 100)
     @Column(name = "quantity")
     private Integer quantity;
+
+
 
 }

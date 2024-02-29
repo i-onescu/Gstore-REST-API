@@ -1,9 +1,9 @@
 package com.gstore.gstoreapi.models.entities;
 
+import com.gstore.gstoreapi.enums.ProductCategory;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Range;
@@ -53,8 +53,14 @@ public class Product {
     private Integer rating;
 
     //seller of the product
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "seller_id", referencedColumnName = "id")
     private Seller seller;
+
+    //search category for product
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private ProductCategory category;
+
 
 }

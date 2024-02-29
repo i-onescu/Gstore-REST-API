@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @UtilityClass
-public final class ResponseBuilder {
+public final class ResponseBuilderHelper {
 
     public static ResponseEntity<ResponsePayload> buildResponsePayload(Object response, HttpStatus status) {
         return new ResponseEntity<>(ResponsePayload.builder()

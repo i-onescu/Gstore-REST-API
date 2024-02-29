@@ -1,79 +1,76 @@
 package com.gstore.gstoreapi.controllers;
 
-import com.gstore.gstoreapi.controllers.util.ResponseBuilder;
-import com.gstore.gstoreapi.exceptions.BuyerNotFoundException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.gstore.gstoreapi.controllers.util.ResponseBuilderHelper;
 import com.gstore.gstoreapi.models.dtos.BuyerDTO;
 import com.gstore.gstoreapi.models.dtos.ResponsePayload;
 import com.gstore.gstoreapi.services.BuyerService;
-import jakarta.validation.ValidationException;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/buyers")
+@RequiredArgsConstructor
 public class BuyerController {
 
     private final BuyerService buyerService;
 
-    public BuyerController(BuyerService buyerService) {
-        this.buyerService = buyerService;
+
+    @PostMapping
+    public ResponseEntity<ResponsePayload> saveBuyer(@RequestBody BuyerDTO buyerDTO) {
+        buyerService.saveBuyer(buyerDTO);
+        return ResponseBuilderHelper.buildResponsePayload("Buyer created!",
+                HttpStatus.CREATED);
+
     }
 
 
     @GetMapping
     public ResponseEntity<ResponsePayload> getAllBuyers() {
-        return ResponseBuilder.buildResponsePayload(buyerService.getAllBuyers(),
+        return ResponseBuilderHelper.buildResponsePayload(buyerService.getAllBuyers(),
                 HttpStatus.FOUND);
     }
 
+
     @GetMapping("/{id}")
     public ResponseEntity<ResponsePayload> getBuyerById(@PathVariable("id") Long id) {
-        try {
-            return ResponseBuilder.buildResponsePayload(buyerService.getBuyerById(id),
-                    HttpStatus.FOUND);
-        } catch (BuyerNotFoundException e) {
-            return ResponseBuilder.buildResponsePayload(String.format("Buyer with id %d not found!", id),
-                    HttpStatus.NOT_FOUND);
-        }
+        return ResponseBuilderHelper.buildResponsePayload(buyerService.getBuyerById(id),
+                HttpStatus.FOUND);
     }
 
-    @PostMapping
-    public ResponseEntity<ResponsePayload> saveBuyer(@RequestBody BuyerDTO buyerDTO) {
-        try {
-            buyerService.saveBuyer(buyerDTO);
-            return ResponseBuilder.buildResponsePayload("Buyer created!",
-                    HttpStatus.CREATED);
-        } catch (ValidationException e) {
-            return ResponseBuilder.buildResponsePayload("Bad request!",
-                    HttpStatus.BAD_REQUEST);
-        }
+
+    @GetMapping("/orders")
+    public ResponseEntity<ResponsePayload> getBuyerOrders(HttpServletRequest request) {
+        Long sessionId = Long.valueOf(request.getHeader("Session-Id"));
+        return ResponseBuilderHelper.buildResponsePayload(buyerService.getBuyerOrders(sessionId),
+                HttpStatus.FOUND);
     }
+
+
+    @PutMapping("/edit")
+    public ResponseEntity<ResponsePayload> updateBuyerDetails(HttpServletRequest request,
+                                                              @RequestBody BuyerDTO buyerDTO) {
+
+        Long sessionId = Long.valueOf(request.getHeader("Session-Id"));
+        buyerService.updateBuyerDetails(sessionId, buyerDTO);
+        return ResponseBuilderHelper.buildResponsePayload("Buyer Updated!",
+                HttpStatus.OK);
+    }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponsePayload> deleteBuyer(@PathVariable Long id) {
-        try {
-            buyerService.deleteBuyerById(id);
-            return ResponseBuilder.buildResponsePayload("Successfully deleted buyer!",
-                    HttpStatus.OK);
-        } catch (BuyerNotFoundException e) {
-            return ResponseBuilder.buildResponsePayload(String.format("Buyer with id %d not found!", id),
-                    HttpStatus.NOT_FOUND);
-        }
+        buyerService.deleteBuyerById(id);
+        return ResponseBuilderHelper.buildResponsePayload("Successfully deleted buyer!",
+                HttpStatus.OK);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ResponsePayload> updateBuyerDetails(@PathVariable("id") Long id,
-                                                              @RequestBody BuyerDTO buyerDTO) {
-        try {
-            buyerService.updateBuyerDetails(id, buyerDTO);
-            return ResponseBuilder.buildResponsePayload("Buyer Updated!",
-                    HttpStatus.OK);
-        } catch (ValidationException e){
-            return ResponseBuilder.buildResponsePayload(String.format("Cannot update buyer with id %d!", id),
-                    HttpStatus.BAD_REQUEST);
-        }
-    }
+
 }
 
 
