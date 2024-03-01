@@ -184,7 +184,7 @@ public class BuyerService {
     private String updateCart(String cart, QuantityDTO quantityDTO) {
 
         List<QuantityDTO> quantities = CartConverter.convertCartStringToQuantityList(cart);
-        if (quantities.get(0) == null) {
+        if (!quantities.isEmpty()) {
             quantities.set(0, quantityDTO);
             return CartConverter.convertQuantityArrayToCartString(quantities);
         }
