@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class OrderConverter implements ObjectConverter<Order, OrderDTO> {
 
     private final BuyerRepository buyerRepository;
-    private final ObjectConverter<Quantity, QuantityDTO> quantityConverter;
+    private final QuantityConverter quantityConverter;
 
     @Override
     public Order convertSecondToFirst(OrderDTO orderDTO) {

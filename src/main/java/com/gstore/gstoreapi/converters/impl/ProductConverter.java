@@ -5,17 +5,14 @@ import com.gstore.gstoreapi.enums.ProductCategory;
 import com.gstore.gstoreapi.models.dtos.ProductDTO;
 import com.gstore.gstoreapi.models.entities.Product;
 import com.gstore.gstoreapi.repositories.SellerRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class ProductConverter implements ObjectConverter<Product, ProductDTO> {
 
     SellerRepository sellerRepository;
-
-    public ProductConverter(SellerRepository sellerService) {
-        this.sellerRepository = sellerService;
-    }
-
 
     @Override
     public Product convertSecondToFirst(ProductDTO dto) {

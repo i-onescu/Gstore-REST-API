@@ -1,6 +1,7 @@
 package com.gstore.gstoreapi.services;
 
 import com.gstore.gstoreapi.converters.ObjectConverter;
+import com.gstore.gstoreapi.converters.impl.SellerConverter;
 import com.gstore.gstoreapi.exceptions.SellerNotFoundException;
 import com.gstore.gstoreapi.enums.AccountStatus;
 import com.gstore.gstoreapi.models.dtos.SellerDTO;
@@ -17,7 +18,7 @@ import java.util.List;
 public class SellerService {
 
     private final SellerRepository sellerRepository;
-    private final ObjectConverter<Seller, SellerDTO> sellerConverter;
+    private final SellerConverter sellerConverter;
 
 
     //saves a new seller based on a provided DTO

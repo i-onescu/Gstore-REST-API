@@ -14,7 +14,6 @@ public class QuantityConverter implements ObjectConverter<Quantity, QuantityDTO>
 
     private final ProductRepository productRepository;
 
-
     @Override
     public Quantity convertSecondToFirst(QuantityDTO quantityDto) {
         Quantity quantity = new Quantity();

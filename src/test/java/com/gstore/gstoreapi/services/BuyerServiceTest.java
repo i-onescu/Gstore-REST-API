@@ -1,41 +1,44 @@
 package com.gstore.gstoreapi.services;
 
-import com.gstore.gstoreapi.converters.ObjectConverter;
+import com.gstore.gstoreapi.converters.impl.BuyerConverter;
+import com.gstore.gstoreapi.converters.impl.OrderConverter;
 import com.gstore.gstoreapi.enums.AccountStatus;
+import com.gstore.gstoreapi.enums.OrderStatus;
 import com.gstore.gstoreapi.models.dtos.BuyerDTO;
 import com.gstore.gstoreapi.models.dtos.OrderDTO;
 import com.gstore.gstoreapi.models.entities.Buyer;
+import com.gstore.gstoreapi.models.entities.CustomSession;
 import com.gstore.gstoreapi.models.entities.Order;
 import com.gstore.gstoreapi.repositories.BuyerRepository;
 import com.gstore.gstoreapi.repositories.ProductRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import org.mockito.Mockito.*;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @ExtendWith(MockitoExtension.class)
 class BuyerServiceTest {
 
-    @InjectMocks private BuyerService buyerService;
-    @Mock private BuyerRepository buyerRepository;
-    @Mock private ProductRepository productRepository;
-    @Mock private ObjectConverter<Buyer, BuyerDTO> buyerConverter;
-    @Mock private ObjectConverter<Order, OrderDTO> orderConverter;
-    @Mock private CustomSessionService customSessionService;
-
+    @InjectMocks
+    private BuyerService buyerService;
+    @Mock
+    private BuyerRepository buyerRepository;
+    @Mock
+    private ProductRepository productRepository;
+    @Mock
+    private BuyerConverter buyerConverter;
+    @Mock
+    private OrderConverter orderConverter;
+    @Mock
+    private CustomSessionService customSessionService;
 
 
     @Test
@@ -45,11 +48,12 @@ class BuyerServiceTest {
         BuyerDTO buyerDTO = buildBuyerDTO();
 
         when(buyerRepository.save(any(Buyer.class))).thenReturn(buyer);
-        when(buyerConverter.convertSecondToFirst(any(BuyerDTO.class))).thenReturn(buyer);
+        when(buyerConverter.convertFirstToSecond(buyer)).thenReturn(buyerDTO);
+        when(buyerConverter.convertSecondToFirst(buyerDTO)).thenReturn(buyer);
 
-        BuyerDTO savedBuyer = buyerService.saveBuyer(buyerDTO);
 
-        Assertions.assertEquals(savedBuyer, buyerDTO);
+        BuyerDTO result = buyerService.saveBuyer(buyerDTO);
+        assertEquals(buyerDTO, result);
 
         verify(buyerRepository).save(any());
     }
@@ -57,19 +61,65 @@ class BuyerServiceTest {
     @Test
     void getAllBuyers() {
 
-        BuyerDTO buyerDTO = buildBuyerDTO();
-        List<Buyer> buyers = Arrays.asList(buildBuyer(), buildBuyer());
-        List<BuyerDTO> buyerDTOS = Arrays.asList(buildBuyerDTO(), buildBuyerDTO());
+        List<BuyerDTO> buyerDTOS = List.of(
+                BuyerDTO.builder()
+                        .name("John")
+                        .country("UK")
+                        .email("johndoe@test.com")
+                        .age(40)
+                        .status(AccountStatus.ACTIVE)
+                        .password(null)
+                        .build(),
+                BuyerDTO.builder()
+                        .name("Alice")
+                        .country("UK")
+                        .email("alicedoe@test.com")
+                        .age(30)
+                        .status(AccountStatus.ACTIVE)
+                        .password(null)
+                        .build(),
+                BuyerDTO.builder()
+                        .name("Larry")
+                        .country("UK")
+                        .email("larrydoe@test.com")
+                        .age(25)
+                        .status(AccountStatus.ACTIVE)
+                        .password(null)
+                        .build()
+        );
+        List<Buyer> buyers =
+                List.of(
+                        new Buyer("John",
+                                "UK",
+                                "johndoe@test.com",
+                                40,
+                                AccountStatus.ACTIVE,
+                                "1234"),
+                        new Buyer("Alice",
+                                "UK",
+                                "alicedoe@test.com",
+                                30,
+                                AccountStatus.ACTIVE,
+                                "5678"),
+                        new Buyer("Larry",
+                                "UK",
+                                "larrydoe@test.com",
+                                25,
+                                AccountStatus.ACTIVE,
+                                "0987")
+                );
 
         when(buyerRepository.findAll()).thenReturn(buyers);
-        when(buyerConverter.convertFirstToSecond(any(Buyer.class))).thenReturn(buyerDTO);
+
+        when(buyerConverter.convertFirstToSecond(any(Buyer.class))).thenCallRealMethod();
+//        when(buyerService.getAllBuyers()).thenCallRealMethod();
 
         List<BuyerDTO> result = buyerService.getAllBuyers();
 
-        Assertions.assertEquals(buyerDTOS, result);
+        assertEquals(buyerDTOS, result);
 
         verify(buyerRepository).findAll();
-        verify(buyerConverter).convertFirstToSecond(any());
+        verify(buyerConverter, times(3)).convertFirstToSecond(any());
     }
 
     @Test
@@ -87,7 +137,7 @@ class BuyerServiceTest {
         //then
         BuyerDTO result = buyerService.getBuyerById(id);
 
-        Assertions.assertEquals(buyerDTO, result);
+        assertEquals(buyerDTO, result);
 
         verify(buyerRepository).findBuyerById(anyLong());
         verify(buyerConverter).convertFirstToSecond(any());
@@ -95,13 +145,48 @@ class BuyerServiceTest {
 
     @Test
     void getBuyerOrders() {
+        LocalDateTime now = LocalDateTime.now();
 
+        Buyer buyer = buildBuyer();
+        buyer.setId(1L);
+
+        CustomSession session = new CustomSession();
+        session.setId(1L);
+        session.setBuyer(buyer);
+
+
+        Order order = new Order("12345", 222D, OrderStatus.PLACED, now, buyer);
+        OrderDTO orderDTO = OrderDTO.builder()
+                .buyerId(1L)
+                .orderNumber("12345")
+                .price(222D)
+                .status(OrderStatus.PLACED)
+                .placedDateTime(now)
+                .buyerId(1L)
+                .orderQuantities(null)
+                .build();
+
+        List<Order> orders = List.of(order, order);
+        buyer.setOrders(orders);
+
+        List<OrderDTO> orderDTOS = List.of(orderDTO, orderDTO);
+
+
+        when(customSessionService.getCustomSessionById(1L)).thenReturn(Optional.of(session));
+        when(orderConverter.convertFirstToSecond(any())).thenReturn(orderDTO);
+
+        List<OrderDTO> result = buyerService.getBuyerOrders(1L);
+
+        assertEquals(orderDTOS, result);
 
 
     }
 
     @Test
     void goToCart() {
+
+
+
     }
 
     @Test
@@ -130,7 +215,7 @@ class BuyerServiceTest {
 
 
     private static Buyer buildBuyer() {
-        Buyer buyer =new Buyer();
+        Buyer buyer = new Buyer();
 
         buyer.setName("name");
         buyer.setCountry("country");
@@ -142,7 +227,7 @@ class BuyerServiceTest {
         return buyer;
     }
 
-    private static BuyerDTO buildBuyerDTO(){
+    private static BuyerDTO buildBuyerDTO() {
         return BuyerDTO.builder()
                 .name("name")
                 .country("country")

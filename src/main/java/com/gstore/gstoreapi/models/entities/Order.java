@@ -3,7 +3,9 @@ package com.gstore.gstoreapi.models.entities;
 import com.gstore.gstoreapi.enums.OrderStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -50,7 +52,18 @@ public class Order {
     private Set<Quantity> orderQuantities;
 
 
+    //CONSTRUCTORS ADDED FOR TESTING PURPOSES
+    public Order() { }
 
-    //and order completed date, ETA, etc.
-
+    public Order(String orderNumber,
+                 Double price,
+                 OrderStatus status,
+                 LocalDateTime placedDateTime,
+                 Buyer buyer) {
+        this.orderNumber = orderNumber;
+        this.price = price;
+        this.status = status;
+        this.placedDateTime = placedDateTime;
+        this.buyer = buyer;
+    }
 }

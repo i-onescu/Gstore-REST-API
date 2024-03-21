@@ -1,6 +1,7 @@
 package com.gstore.gstoreapi.services;
 
 import com.gstore.gstoreapi.converters.ObjectConverter;
+import com.gstore.gstoreapi.converters.impl.OrderConverter;
 import com.gstore.gstoreapi.exceptions.BuyerNotFoundException;
 import com.gstore.gstoreapi.exceptions.OrderNotFoundException;
 import com.gstore.gstoreapi.enums.OrderStatus;
@@ -26,7 +27,7 @@ public class OrderService {
 
     private final QuantityService quantityService;
     private final OrderRepository orderRepository;
-    private final ObjectConverter<Order, OrderDTO> orderConverter;
+    private final OrderConverter orderConverter;
 
 
     //saves a new order based on a valid DTO

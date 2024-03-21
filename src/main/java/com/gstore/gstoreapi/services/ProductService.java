@@ -1,6 +1,7 @@
 package com.gstore.gstoreapi.services;
 
 import com.gstore.gstoreapi.converters.ObjectConverter;
+import com.gstore.gstoreapi.converters.impl.ProductConverter;
 import com.gstore.gstoreapi.enums.ProductCategory;
 import com.gstore.gstoreapi.exceptions.InvalidPayloadException;
 import com.gstore.gstoreapi.exceptions.InvalidSessionIdException;
@@ -28,7 +29,7 @@ public class ProductService {
 
     private final QuantityRepository quantityRepository;
     private final ProductRepository productRepository;
-    private final ObjectConverter<Product, ProductDTO> productConverter;
+    private final ProductConverter productConverter;
     private final CustomSessionService customSessionService;
 
 

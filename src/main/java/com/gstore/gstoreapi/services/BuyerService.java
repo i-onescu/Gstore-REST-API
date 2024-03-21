@@ -2,6 +2,8 @@ package com.gstore.gstoreapi.services;
 
 import com.gstore.gstoreapi.converters.CartConverter;
 import com.gstore.gstoreapi.converters.ObjectConverter;
+import com.gstore.gstoreapi.converters.impl.BuyerConverter;
+import com.gstore.gstoreapi.converters.impl.OrderConverter;
 import com.gstore.gstoreapi.exceptions.*;
 import com.gstore.gstoreapi.enums.AccountStatus;
 import com.gstore.gstoreapi.models.dtos.BuyerDTO;
@@ -28,8 +30,8 @@ public class BuyerService {
 
     private final BuyerRepository buyerRepository;
     private final ProductRepository productRepository;
-    private final ObjectConverter<Buyer, BuyerDTO> buyerConverter;
-    private final ObjectConverter<Order, OrderDTO> orderConverter;
+    private final BuyerConverter buyerConverter;
+    private final OrderConverter orderConverter;
     private final CustomSessionService customSessionService;
 
 
@@ -68,7 +70,7 @@ public class BuyerService {
     public BuyerDTO getBuyerById(Long id) {
         //throws exception if a buyer with the provided id is not found
         Buyer buyer = buyerRepository.findBuyerById(id)
-                .orElseThrow(BuyerNotFoundException::new);
+                .orElseThrow(() -> new BuyerNotFoundException(String.format("Buyer with id %d not found!", id)));
 
         //returns a converted DTO
         return buyerConverter.convertFirstToSecond(buyer);
@@ -301,12 +303,12 @@ public class BuyerService {
     public OrderDTO getCartCheckout(Long sessionId) {
         CustomSession session = getSessionOrElseThrow(sessionId);
 
-        Set<QuantityDTO> quantitites = new HashSet<>(CartConverter.convertCartStringToQuantityList(session.getBuyer().getCart()));
+        Set<QuantityDTO> quantities = new HashSet<>(CartConverter.convertCartStringToQuantityList(session.getBuyer().getCart()));
 
 
         return OrderDTO.builder()
                 .buyerId(session.getBuyer().getId())
-                .orderQuantities(quantitites)
+                .orderQuantities(quantities)
                 .build();
     }
 

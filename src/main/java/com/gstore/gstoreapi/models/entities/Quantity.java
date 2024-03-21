@@ -34,5 +34,10 @@ public class Quantity {
     private Integer quantity;
 
 
+    //CONSTRUCTORS ADDED FOR TESTING PURPOSES
+    public Quantity() { }
 
+    public Quantity(Integer quantity) {
+        this.quantity = quantity;
+    }
 }

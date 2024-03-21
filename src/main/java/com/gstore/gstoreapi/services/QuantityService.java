@@ -1,6 +1,7 @@
 package com.gstore.gstoreapi.services;
 
 import com.gstore.gstoreapi.converters.ObjectConverter;
+import com.gstore.gstoreapi.converters.impl.QuantityConverter;
 import com.gstore.gstoreapi.exceptions.ProductNotAvailableException;
 import com.gstore.gstoreapi.exceptions.ProductNotFoundException;
 import com.gstore.gstoreapi.models.dtos.QuantityDTO;
@@ -17,7 +18,7 @@ import org.springframework.stereotype.Service;
 public class QuantityService {
 
     private final QuantityRepository quantityRepository;
-    private final ObjectConverter<Quantity, QuantityDTO> quantityConverter;
+    private final QuantityConverter quantityConverter;
 
 
     public void saveQuantity(@Valid QuantityDTO quantityDTO, Order order) {

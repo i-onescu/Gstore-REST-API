@@ -61,7 +61,6 @@ public class Buyer {
     //containing pseudo-quantities with a pattern of
     // item1Id:item1Quantity,item2Id:item2Quantity,item3Id:item3Quantity
     @Nullable
-//    @Pattern(regexp = "[0-9:,]+")
     @Column(name = "cart")
     private String cart;
 
@@ -69,10 +68,21 @@ public class Buyer {
     @Column(name = "password")
     private String password;
 
-//    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    @JoinColumn(name = "session_id", referencedColumnName = "id")
-//    private CustomSession session;
 
-    //ADD ADDRESS
+    //CONSTRUCTORS ADDED FOR TESTING PURPOSES
+    public Buyer() { }
 
+    public Buyer(String name,
+                 String country,
+                 String email,
+                 Integer age,
+                 AccountStatus status,
+                 String password) {
+        this.name = name;
+        this.country = country;
+        this.email = email;
+        this.age = age;
+        this.status = status;
+        this.password = password;
+    }
 }
